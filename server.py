@@ -11,35 +11,31 @@ SERVERPORT = 12492
 class ChatServer:
 
     def __init__(self, port):
+        # Set port
         self.port = port
 
+        # Create socket
         self.s = socket.socket()
         self.s.bind(("", port))
         self.s.listen(MAXCLIENTS)
 
+        # Import logins
+        file = open(LOGINFILE, "r")
+        for line in file:
+            loginInfo = line.split(",")
+            loginID = loginInfo[0]
+            loginPassword = loginInfo[1]
+            self.loginDictionary = {}
+            self.loginDictionary[loginID] = loginPassword
+        file.close()
+
+        # Start listening
         while True:
             c, addr = self.s.accept()
             print 'Got connection from', addr
             c.send("Client connected to server")
             c.close()
 
-
-# Function declarations
-
-def importLogins(loginFile):
-    file = open(loginFile, "r")
-    for line in file:
-        loginInfo = line.split(",")
-        loginID = loginInfo[0]
-        loginPassword = loginInfo[1]
-        loginDictionary = {}
-        loginDictionary[loginID] = loginPassword
-    file.close()
-    return loginDictionary
-
-
 # Main program
-
-loginDictionary = importLogins(LOGINFILE)
 
 chatServer = ChatServer(SERVERPORT)
