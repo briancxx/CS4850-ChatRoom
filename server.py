@@ -1,15 +1,15 @@
 import socket
 
-#Global variables
+# Global variables
 
 MAXCLIENTS = 3
 LOGINFILE = "login.txt"
 SERVERPORT = 12492
 
 # Chat Server class
-
 class ChatServer:
 
+    # Initialize class
     def __init__(self, port):
         # Set port
         self.port = port
@@ -29,13 +29,17 @@ class ChatServer:
             self.loginDictionary[loginID] = loginPassword
         file.close()
 
+    def run(self):
+        print("Server running")
+        self.connectionDictionary = {}
         # Start listening
         while True:
             c, addr = self.s.accept()
-            print 'Got connection from', addr
-            c.send("Client connected to server")
+            print "Got connection from", addr
+            c.send("Welcome to the chat room!")
             c.close()
 
 # Main program
 
 chatServer = ChatServer(SERVERPORT)
+chatServer.run()

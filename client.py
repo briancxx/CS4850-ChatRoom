@@ -10,12 +10,14 @@ class ChatClient:
 
     def __init__(self, port):
         self.port = port
+        self.s = socket.socket()
 
-        s = socket.socket()
-        s.connect(("127.0.0.1", port))
-        print s.recv(1024)
-        s.close()
+    def run(self):
+        self.s.connect(("127.0.0.1", self.port))
+        print self.s.recv(1024)
+        self.s.close()
 
 # Main program
 
 chatClient = ChatClient(SERVERPORT)
+chatClient.run()
