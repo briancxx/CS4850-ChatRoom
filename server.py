@@ -68,6 +68,12 @@ class ChatServer:
                         c.send(self.loginID + ": " + message[5:])
                     else:
                         c.send("Server: Denied. Please login first.")
+                # NEWUSER REQUEST
+                elif brokeninput[0] == "newuser":
+                    self.loginDictionary[str(brokeninput[1])] = brokeninput[2]
+                    self.loginID = brokeninput[1]
+                    c.send("Server: New user created. Now logged in to user " + self.loginID)
+                    repeat = True
                 # UNKNOWN REQUEST
                 else:
                     c.send("Server: Invalid request.")
