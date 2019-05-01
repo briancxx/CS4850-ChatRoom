@@ -1,9 +1,13 @@
+# Lab 3 - Chat Room v2
+# CS 4850
+# Brian Cox
+# 01 May 2019
+
 import socket
-import thread
 
 # Global variables
 
-MAXCLIENTS = 3
+MAXCLIENTS = 1
 LOGINFILE = "users.txt"
 SERVERPORT = 12492
 
@@ -32,31 +36,40 @@ class ChatServer:
         print self.loginDictionary
         file.close()
 
+    # Start running server
     def run(self):
         print("Server running")
         self.connectionDictionary = {}
-        # Start listening
+        # Continuously repeat, waiting for new client
         while True:
+            # Accept client
             c, addr = self.s.accept()
             print "Got connection from", addr
             c.send("Welcome to the chat room!")
             self.loginID = ""
             repeat = True
+            # Continuously repeat, waiting for input
             while repeat:
+                # Receive message from client, break apart message
                 message = c.recv(1024)
                 print "\"" + message + "\"", "from", addr
                 brokeninput = message.split(" ")
+
+                # Try to process input
                 try:
                     # LOGOUT REQUEST
                     if brokeninput[0] == "logout":
                         print "LOGOUT REQUEST FROM", addr
-                        c.close()
                         repeat = False
+                        c.close()
                     # LOGIN REQUEST
                     elif brokeninput[0] == "login":
                         print "LOGIN REQUEST FROM", addr
-                        print brokeninput[0], brokeninput[1], brokeninput[2]
-                        if(self.loginDictionary[str(brokeninput[1])] == brokeninput[2]):
+                        # Verify user not logged in already
+                        if self.loginID != "":
+                            c.send("Server: Cannot switch users while logged in.")
+                        # Lookup password, check success
+                        elif(self.loginDictionary[str(brokeninput[1])] == brokeninput[2]):
                             print "SUCCESSFUL LOGIN FROM", addr, "TO USER", brokeninput[1]
                             self.loginID = brokeninput[1]
                             c.send("Server: Now logged in to user " + self.loginID + ".")
@@ -72,13 +85,22 @@ class ChatServer:
                             c.send("Server: Denied. Please login first.")
                     # NEWUSER REQUEST
                     elif brokeninput[0] == "newuser":
-                        self.loginDictionary[str(brokeninput[1])] = brokeninput[2]
-                        self.loginID = brokeninput[1]
-                        file = open(LOGINFILE, "a")
-                        file.write("\n" + brokeninput[1] + "," + brokeninput[2])
-                        file.close()
-                        c.send("Server: New user created. Now logged in to user " + self.loginID + ".")
-                        repeat = True
+                        # Verify correct number of characters
+                        if len(str(brokeninput[1])) < 32 and len(str(brokeninput[2])) <= 8 and len(str(brokeninput[2])) >= 4:
+                            # Verify user doesn't already exist
+                            if str(brokeninput[1]) not in self.loginDictionary:
+                                # Add user to dictionary and to users file
+                                self.loginDictionary[str(brokeninput[1])] = brokeninput[2]
+                                self.loginID = brokeninput[1]
+                                file = open(LOGINFILE, "a")
+                                file.write("\n" + brokeninput[1] + "," + brokeninput[2])
+                                file.close()
+                                c.send("Server: New user created. Now logged in to user " + self.loginID + ".")
+                                repeat = True
+                            else:
+                                c.send("Server: Error. User ID already exists.")
+                        else:
+                            c.send("Server: User ID must be less than 32 characters, and password must be between 4 and 8.")
                     # UNKNOWN REQUEST
                     else:
                         c.send("Server: Invalid request.")

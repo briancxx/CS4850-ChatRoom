@@ -1,3 +1,8 @@
+# Lab 3 - Chat Room
+# CS 4850
+# Brian Cox
+# 01 May 2019
+
 import socket
 
 #Global variables
