@@ -1,4 +1,4 @@
-# Lab 3 - Chat Room v2
+# Lab 3 - Chat Room
 # CS 4850
 # Brian Cox
 # 01 May 2019
